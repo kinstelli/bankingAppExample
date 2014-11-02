@@ -20,7 +20,9 @@ Savedo Client README:
 **Google Fonts**
 
 small pieces of [** ui bootstrap-angular **](angular-ui.github.io/bootstrap) and **jQuery**
-----
+
+
+---
 ### Building from repo
 
 Tools needed:
