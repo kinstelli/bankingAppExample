@@ -1,0 +1,252 @@
+<!doctype html>
+<html class="no-js">
+  <head>
+    <meta charset="utf-8">
+    <title>Savedo Customer System</title>
+    <meta name="description" content="">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <!-- build:css(.) styles/vendor.css -->
+    <!-- bower:css -->
+    <link rel="stylesheet" href="bower_components/bootstrap/dist/css/bootstrap.css" />
+    <!-- endbower -->
+    <!-- endbuild -->
+    <!-- build:css(.tmp) styles/main.css -->
+    <link href='http://fonts.googleapis.com/css?family=Raleway:500' rel='stylesheet' type='text/css'>
+    <link rel="stylesheet" href="styles/main.css">
+    
+    <!-- endbuild --> 
+  </head>
+  <body ng-app="savedoApp" >
+    <!--[if lt IE 7]>
+      <p class="browsehappy">You are using an <strong>outdated</strong> browser. Please <a href="http://browsehappy.com/">upgrade your browser</a> to improve your experience.</p>
+    <![endif]-->
+      <div class="splash" ng-cloak="">
+      <p>Loading</p>
+      </div>
+
+    <!-- Add your site or application content here -->
+    <div ng-Controller="TransactionsController" ng-cloak>
+      
+      <nav class="topNavigation" >
+        <div class="iconHolder" >
+            <img src="images/savedo_logo_320.png" class="imageIcon" >
+        </div>
+        <div id="smallNavMenuButton" class="smallNavMenuButton glyphicon glyphicon-align-justify" ng-click="toggleMobileMenu()" >
+        </div>
+      </nav>
+
+      <nav class="operationsMenu">
+        <div class="menuSectionLabel">Your Accounts</div>
+        <div id="menuOptionShowBalances" class="operationOption" ng-click="displayBalancesWindow()"> 
+          <span class="operationsLabel">Balances</span>
+        </div>
+        <div class="operationOption" >
+           <span class="operationsLabel">Activity</span> 
+        </div>
+        <div class="menuSectionLabel">Payments</div>
+        <div id="menuOptionShowMakePayments" class="operationOption" ng-click="displayPaymentWindow()">
+          <span class="operationsLabel">Make Payment</span>
+        </div>
+        <div class="menuSectionLabel">Payees</div>
+        <div class="operationOption" >
+          <span class="operationsLabel">List Payees</span>
+        </div>
+        <div id="menuOptionShowAddPayee" class="operationOption" ng-click="displayPayeeWindow()"> 
+          <span class="operationsLabel">Create Payee</span>
+        </div>
+      </nav>
+
+      <nav class="mobileMenu" ng-show="showingMobileMenu" ng-click="hideMobileMenu()" ng-mouseleave="hideMobileMenu()">
+        <div  id="mobileOptionShowBalances" class="mobileOption" ng-click="displayBalancesWindow()">Balances</div>
+        <div  id="mobileOptionShowMakePayments" class="mobileOption" ng-click="displayPaymentWindow()">Make Payment</div>
+        <div  id="mobileOptionShowAddPayee" class="mobileOption" ng-click="displayPayeeWindow()">Create Payee</div>
+      </nav>
+
+
+  <div class="mainWindow" ng-init="init()" >
+      
+      <div id="payeeFormSection" class="savedoForm" ng-show="curNav == 'addPayee'">
+          <div class="formHeading">
+              Create Payee
+          </div>
+          <div class='formElementsContainer' id="payeeFormContainer" >
+              <form name="addPayeeForm" ng-submit="saveNewPayee()">          
+              <div class="formLine">
+                    <label for="payeeNameInput">Payee Name
+                        <span class="fieldIsGood" ng-hide="addPayeeForm.payeeNameInput.$error.required || addPayeeForm.payeeNameInput.$error.payeeExists">&check;</span>
+                    </label>
+                    <input id="payeeNameInput" name="payeeNameInput" ng-model="newPayee.payeeName" type="text" placeholder="Enter a payee name" required ng-change="checkForExistingPayee()">
+                    <div class="miscMessageArea">
+                        <span class="formErrorInfo" ng-show="addPayeeForm.payeeNameInput.$error.payeeExists">This payee already exists.</span>
+                    </div>
+              </div>
+              <div class="formLine">
+                    <label for="payeeBankInput">Payee Banking Institution
+                      <span class="fieldIsGood" ng-hide="addPayeeForm.payeeBankInput.$error.required">&check;</span>
+                   </label>
+                    <input id="payeeBankInput" name="payeeBankInput" ng-model="newPayee.bank" type="text" placeholder="Enter the payee&apos;s bank name" required>
+                    <div class="miscMessageArea">
+                    </div>
+                  </div>
+              <div class="formLine">
+                <label for="payeeIBANInput">Payee IBAN #  
+                  <span class="fieldIsGood" ng-hide="addPayeeForm.payeeIBANInput.$error.required || addPayeeForm.$error.validIBAN">&check;</span> 
+                  </label>
+                <input id="payeeIBANInput" name="payeeIBANInput" ng-model="newPayee.iban" type="text" placeholder="Enter the payee&apos;s IBAN number" valid-iban required>
+                <div class="miscMessageArea">
+                  <span class="formErrorInfo" id="ibanErrorInfo" ng-show="addPayeeForm.$error.validIBAN">A valid IBAN is required.</span>
+                </div>
+              </div>
+
+              <div class="formButtons">
+                <button type="button" class="cancelButton btn btn-warning btn-lg" ng-click="clearWindows()" >Cancel
+                </button>
+                <button id="savePayeeButton" type="submit" class="saveButton btn btn-primary btn-lg" ng-disabled="addPayeeForm.$error.required || addPayeeForm.$error.validIBAN" >Save
+                </button>
+              </div>
+              </form >
+          </div>
+      </div>
+
+
+
+      <div id="makePaymentForm" class="savedoForm" ng-show="curNav == 'makePayment'">
+          <div class="formHeading">
+              Make a Payment
+          </div>
+
+            <div id="noPayeesAlert" ng-show="payees.length < 1">
+              <div class='formElementsContainer' >
+                <p></p>
+                <div class="customerAlertInfo noPayeesAlertInfo">You currently have no payees. Add one?</div>
+                <div class="formButtons">
+                    <div class="cancelButton btn btn-warning btn-lg" ng-click="clearWindows()" >Cancel</div>
+                    <button class="saveButton btn btn-primary btn-lg" ng-click="displayPayeeWindow()">Yes</button>
+                </div>
+               </div>
+            </div>
+
+            <div class='formElementsContainer' ng-show="payees.length > 0">
+              <form name="newPaymentForm" ng-submit="savePayment()" class="ws-validate">
+                
+                <label for="payeeSelector">Payee
+                  <span class="fieldIsGood" ng-show="newPayment.payee.payeeName">&check;
+                  </span>
+                </label>
+                <div>
+                  <select id="payeeSelector" name="payeeSelector" ng-model="newPayment.payee" ng-options="payee.payeeName for payee in payees" required="required">
+                  </select>
+                </div>
+                <div class="miscMessageArea">
+                </div>
+              
+                <div>
+                <label for="paymentAmountInput">Payment Amount
+                  <span class="fieldIsGood" ng-show="newPayment.amount > 0">&check;</span>
+                </label>
+                <input id="paymentAmountInput" class="currencyInput" name="paymentAmountInput" min=".01" step=".01" type="number" ng-model="newPayment.amount" placeholder="Enter the Amount" required>
+                <div class="miscMessageArea">
+                </div>
+                </div>
+              
+                <div>
+                <label for="paymentDateInput">Payment Posting Date
+                    <span class="fieldIsGood" ng-show="newPaymentForm.paymentDateInput.$error">&check;</span>
+                </label>
+                <div>
+                  <input id="paymentDateInput" type="date"  name="paymentDateInput" ng-model="newPayment.postingDate" required>  
+                </div>
+                <div class="miscMessageArea">
+                </div>         
+                </div>
+
+                <div class="formButtons">
+                  <div class="cancelButton btn btn-warning btn-lg" ng-click="clearWindows()" >Cancel</div>
+                  <button  id="savePaymentButton"  type="submit" class="saveButton btn btn-primary btn-lg" ng-disabled="newPaymentForm.$error.required">Save</button>
+                </div>
+              </form>
+          </div><!--end form elements container -->
+      </div><!-- end maypayment window -->
+
+
+      <div id="balancesInfoWindow" class="savedoForm" ng-show="curNav == 'viewBalances'">
+        <div class="formHeading">
+        Balances
+        </div>
+        <div class='formElementsContainer' >
+
+          <div class="accountsInfoBlock">
+            <div>
+            <p>Your Accounts</p>
+            </div>
+            <div>
+              Checking
+              <span id="checkingAmount" class="accountAmount checkingAmount pull-right" style='display:inline-block;'> 
+                  {{ checkingBalance | currency }}
+              </span>
+            </div>
+            <div>
+              Savings
+              <span id="savingsAmount"  class="accountAmount savingsAmount pull-right" style='display:inline-block;'> 
+                  {{ savingsBalance | currency }}
+               </span>
+             </div>
+          </div>
+          <div class="formButtons">
+            <button class="closeButton btn btn-warning btn-lg" ng-click="clearWindows()" >Close</button>
+          </div>
+
+        </div>
+      </div>
+
+
+      <div class="alertMessageWindow" ng-show="curNav == 'showingAlert'">
+          <div class="formHeading alertHeading">Customer Update</div>
+          <div class='formElementsContainer'  >
+            <div class="alertInfoBox">
+              <span class="customerAlertInfo paymentAlertInfo" ng-show="savedPaymentAlert">You successfully scheduled a payment to &ldquo;{{ newPayment.payee.payeeName }}&rdquo; for {{ newPayment.amount | currency }} to be paid on {{ newPayment.postingDate |  date:'yyyy-MM-dd' }}.</span>
+              <span class="customerAlertInfo savedPayeeAlertInfo" ng-show="savedPayeeAlert">You successfully saved a new payee &ldquo;{{ newPayee.payeeName }}&rdquo; at bank {{ newPayee.bank }} with account {{ newPayee.iban }}.</span>
+            </div>
+            <div class="formButtons">
+               <button class="okayButton btn btn-warning btn-lg" ng-click="clearWindows()" >Okay</button>
+            </div>
+          </div>
+      </div>
+
+
+      </div><!-- end app's main window -->
+  
+    </div><!-- end TransactionsController scope -->
+
+
+   
+    <!-- build:js(.) scripts/oldieshim.js -->
+    <!--[if lt IE 9]>
+    <script src="bower_components/es5-shim/es5-shim.js"></script>
+    <script src="bower_components/json3/lib/json3.js"></script>
+    <![endif]-->
+    <!-- endbuild -->
+    <!-- build:js(.) scripts/vendor.js -->
+    <!-- bower:js -->
+    <script src="bower_components/modernizr/modernizr.js"></script>
+    <script src="bower_components/jquery/dist/jquery.js"></script>
+    <script src="bower_components/angular/angular.js"></script>
+    <script src="bower_components/bootstrap/dist/js/bootstrap.js"></script>
+    <script src="bower_components/angular-resource/angular-resource.js"></script>
+    <script src="bower_components/angular-sanitize/angular-sanitize.js"></script>
+    <script src="bower_components/angular-route/angular-route.js"></script>
+    <script src="bower_components/angular-bootstrap/ui-bootstrap-tpls.js"></script>
+    <!-- endbower -->
+    <script src="bower_components/angular-local-storage/dist/angular-local-storage.js"></script>
+    <script src="bower_components/webshim/js-webshim/minified/polyfiller.js"></script>
+
+    <!-- endbuild -->
+
+      <!-- build:js({.tmp,app}) scripts/scripts.js -->
+   
+      <script src="scripts/savedo-polyfiller.js"></script>
+      <script src="scripts/app.js"></script>
+      <script src="scripts/controllers/TransactionsController.js"></script>
+      <!-- endbuild -->
+</body>
+</html>
