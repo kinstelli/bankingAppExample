@@ -7,19 +7,21 @@ Savedo Client README:
 
 **Angularjs**
 
-**Protactor** end-to-end test suite
+**grunt / yeoman**
 
 **yeoman angular-generator boilerplate** https://github.com/yeoman/generator-angular chosen for its better integration with grunt, bower, and multiple testing approaches
 
 **angular-local-storage** 
 
-**grunt / yeoman**
-
 **webshim**
 
 **Google Fonts**
 
-small pieces of [** ui bootstrap-angular **](angular-ui.github.io/bootstrap) and **jQuery**
+**Protactor** end-to-end test suite
+
+**Jasmine/Karma** a couple unit tests
+
+small pieces of [ **ui bootstrap-angular** ](angular-ui.github.io/bootstrap) and **jQuery**
 
 
 ---
